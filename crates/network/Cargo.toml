@@ -1,0 +1,11 @@
+[package]
+name = "network"
+version.workspace = true
+edition.workspace = true
+
+[dependencies]
+tokio = { version = "1.42.0", features = ["full"] }
+logging.workspace = true
+utils.workspace = true
+message.workspace = true
+

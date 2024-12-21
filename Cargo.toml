@@ -1,6 +1,20 @@
-[package]
-name = "simtfl-rust"
+[workspace]
+members = [
+    "bin/demo",
+    "crates/logging", "crates/network", "crates/message", "crates/utils"
+, "crates/bft", "crates/bc", "crates/node", ]
+
+[workspace.package]
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
+[workspace.dependencies]
+logging = { path = "crates/logging" }
+network = { path = "crates/network" }
+message = { path = "crates/message" }
+utils = { path = "crates/utils" }
+bft = { path = "crates/bft" }
+bc = { path = "crates/bc" }
+node = { path = "crates/node" }
+
+
