@@ -28,24 +28,24 @@ pub trait Node: Send + Sync + std::fmt::Debug + Any {
     }
 
     /// Sends a message to a target node
-    async fn send(&self, target: i32, message: MessageString, delay: Option<u32>) -> ProcessEffect {
+    async fn send(&self, target: i32, message: Box<dyn Message>, delay: Option<u32>) -> ProcessEffect {
         self.network().lock().await
             .send(self.ident(), target, message, delay)
             .await
     }
 
     /// Broadcasts a message to all nodes
-    async fn broadcast(&self, message: MessageString, delay: Option<u32>) -> ProcessEffect {
+    async fn broadcast(&self, message: Box<dyn Message>, delay: Option<u32>) -> ProcessEffect {
         self.network().lock().await.broadcast(self.ident(), message, delay).await
     }
 
     /// Receives a message from a sender
-    async fn receive(&self, sender: i32, message: MessageString) -> ProcessEffect {
+    async fn receive(&self, sender: i32, message: Box<dyn Message>) -> ProcessEffect {
         self.handle(sender, message).await
     }
 
     /// Handles a received message
-    async fn handle(&self, sender: i32, message: MessageString) -> ProcessEffect;
+    async fn handle(&self, sender: i32, message: Box<dyn Message>) -> ProcessEffect;
 
     /// Runs the node
     async fn run(&self) -> ProcessEffect;
@@ -135,7 +135,7 @@ impl Network {
         &self,
         sender: i32,
         target: i32,
-        message: MessageString,
+        message: Box<dyn Message>,
         delay: Option<u32>,
     ) -> ProcessEffect {
         let delay = delay.unwrap_or(self.delay as u32) as i64;
@@ -163,7 +163,7 @@ impl Network {
     pub async fn broadcast(
         &self,
         sender: i32,
-        message: MessageString,
+        message: Box<dyn Message>,
         delay: Option<u32>,
     ) -> ProcessEffect {
         let delay = delay.unwrap_or(self.delay as u32) as i64;
@@ -178,7 +178,7 @@ impl Network {
         for target in 0..self.num_nodes() as i32 {
             if target != sender {
                 let network = self.self_ref.clone().unwrap();
-                let message = message.clone();
+                let message = message.box_clone();
                 tokio::spawn(async move { network.lock().await.convey(delay, sender, target, message).await });
             }
         }
@@ -192,7 +192,7 @@ impl Network {
         delay: i64,
         sender: i32,
         target: i32,
-        message: MessageString,
+        message: Box<dyn Message>,
     ) -> ProcessEffect {
         tokio::time::sleep(tokio::time::Duration::from_secs(delay as u64)).await;
 

@@ -110,16 +110,16 @@ impl Node for PingNode {
 
     async fn run(&self) -> ProcessEffect {
         for i in 0..self.network().lock().await.num_nodes() {
-            let message = MessageString::new(Ping::new(i).to_string());
-            self.send(i as i32, message.clone(), None).await;
+            let ping_i = Box::new(Ping::new(i));
+            self.send(i as i32, ping_i.box_clone(), None).await;
             sleep(Duration::from_secs(1)).await;
-            self.send(i as i32, message, None).await;
+            self.send(i as i32, ping_i, None).await;
             sleep(Duration::from_secs(2)).await;
         }
         skip().await
     }
 
-    async fn handle(&self, sender: i32, message: MessageString) -> ProcessEffect {
+    async fn handle(&self, sender: i32, message: Box<dyn Message>) -> ProcessEffect {
         self.base.handle(sender, message).await
     }
 }
@@ -157,11 +157,11 @@ impl Node for PongNode {
         self.base.network()
     }
 
-    async fn handle(&self, sender: i32, message: MessageString) -> ProcessEffect {
-        if let Ok(ping) = Ping::from_str(&message.message) {
+    async fn handle(&self, sender: i32, message: Box<dyn Message>) -> ProcessEffect {
+        if let Some(ping) = message.as_any_ref().downcast_ref::<Ping<i32>>() {
             sleep(Duration::from_secs(5)).await;
-            let pong_message = MessageString::new(Pong::new(ping.payload()).to_string());
-            self.send(sender, pong_message, None).await;
+            let pong_i = Box::new(Pong::new(*ping.payload()));
+            self.send(sender, pong_i, None).await;
         } else {
             self.base.handle(sender, message).await;
         }

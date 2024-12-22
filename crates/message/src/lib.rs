@@ -1,6 +1,23 @@
-pub trait Message: std::fmt::Debug + Clone + Send + 'static {
-    fn serialize(&self) -> Vec<u8>;
-    fn deserialize(bytes: &[u8]) -> Self;
+use std::any::Any;
+
+pub trait Message: std::fmt::Debug + Send + 'static + Any {
+    fn box_clone(&self) -> Box<dyn Message>;
+    fn as_any_ref(&self) -> &dyn Any;
+
+}
+
+impl<T> Message for T 
+where 
+    T: Send + Sync + std::fmt::Debug + Clone + 'static + Any
+{
+    fn box_clone(&self) -> Box<dyn Message> {
+        Box::new(self.clone())
+    }
+
+    fn as_any_ref(&self) -> &dyn Any {
+        self
+    }
+
 }
 
 #[derive(Debug, Clone)]
@@ -11,18 +28,6 @@ pub struct MessageString {
 impl MessageString {
     pub fn new(message: String) -> Self {
         MessageString { message }
-    }
-}
-
-impl Message for MessageString {
-    fn serialize(&self) -> Vec<u8> {
-        self.message.as_bytes().to_vec()
-    }
-
-    fn deserialize(bytes: &[u8]) -> Self {
-        MessageString {
-            message: String::from_utf8(bytes.to_vec()).unwrap(),
-        }
     }
 }
 

@@ -47,7 +47,7 @@ impl Node for PassiveNode {
         self.network.clone().expect("Node not initialized")
     }
 
-    async fn handle(&self, sender: i32, message: MessageString) -> ProcessEffect {
+    async fn handle(&self, sender: i32, message: Box<dyn Message>) -> ProcessEffect {
         self.log("RECEIVE", &format!("from {}: {:?}", sender, message)).await;
         skip().await
     }
@@ -62,7 +62,7 @@ impl Node for PassiveNode {
 pub struct SequentialNode {
     ident: i32,
     network: Option<Arc<Mutex<Network>>>,
-    mailbox: Arc<Mutex<VecDeque<(i32, Box<MessageString>)>>>,
+    mailbox: Arc<Mutex<VecDeque<(i32, Box<dyn Message>)>>>,
 }
 
 impl SequentialNode {
@@ -102,13 +102,13 @@ impl Node for SequentialNode {
         self.network.as_ref().expect("Node not initialized").clone()
     }
 
-    async fn handle(&self, _sender: i32, _message: MessageString) -> ProcessEffect {
+    async fn handle(&self, _sender: i32, _message: Box<dyn Message>) -> ProcessEffect {
         skip().await
     }
 
-    async fn receive(&self, sender: i32, message: MessageString) -> ProcessEffect {
+    async fn receive(&self, sender: i32, message: Box<dyn Message>) -> ProcessEffect {
         let mut mailbox = self.mailbox.lock().await;
-        mailbox.push_back((sender, Box::new(message)));
+        mailbox.push_back((sender, message));
         skip().await
     }
 
@@ -121,7 +121,7 @@ impl Node for SequentialNode {
 
             if let Some((sender, message)) = maybe_message {
                 self.log("handle", &format!("from {:2}: {:?}", sender, message)).await;
-                self.handle(sender, *message).await;
+                self.handle(sender, message).await;
             } else {
                 tokio::time::sleep(tokio::time::Duration::from_millis(100)).await;
             }
