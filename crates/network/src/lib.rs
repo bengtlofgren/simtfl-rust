@@ -2,11 +2,14 @@ use std::any::Any;
 use std::sync::Arc;
 use async_trait::async_trait;
 
+// TODO: This unused import is allowed becasue eventually I want to use Message
+#[allow(unused_imports)]
 use message::{Message, MessageString};
 use utils::{ProcessEffect, skip};
 use logging::Logger;
 
 /// Base trait for node properties
+// TODO: Use message::Message instead of MessageString
 #[async_trait]
 pub trait Node: Send + Sync + std::fmt::Debug + Any {
     /// Initializes a Node with the given ident, environment, and network
@@ -70,6 +73,23 @@ impl Network {
         let arc = Arc::new(network);
         arc
 
+    }
+
+    pub fn new_mutex(
+        nodes: Option<Vec<Arc<dyn Node>>>, 
+        delay: i64,
+        logger: Box<dyn Logger>
+    ) -> Arc<tokio::sync::Mutex<Self>> {
+        logger.header();
+        let network = Network {
+            self_ref: None,
+            nodes: nodes.unwrap_or_default(),
+            delay,
+            logger,
+        };
+        let mutex = tokio::sync::Mutex::new(network);
+        let arc = Arc::new(mutex);
+        arc
     }
 
     /// Logs an event for a node
