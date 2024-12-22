@@ -6,9 +6,9 @@
 
 - [x] Abstract: It simulates node behavior in response to messages based on the description of the protocol design. (It doesn’t need to make network connections, use persistent storage, or define message formats.)
 - [x] Deterministic: A simulator run always produces identical results on any machine.
-- [] Network wide: It simulates the behavior of all nodes in the network, not just a single node.
-- [] Faster than real time: It simulates message transmission times, delays or message order interleaving directly without using the real-time clock.
-- [] Full network per message causal ordering: If node A sends a message `m_a` to node B, and node C sends a message `m_c` to node D, then it can simulate either `m_a` arriving before `m_c` or `m_c` arriving before `m_a`.
+- [x] Network wide: It simulates the behavior of all nodes in the network, not just a single node.
+- [x] Faster than real time: It simulates message transmission times, delays or message order interleaving directly without using the real-time clock.
+- [x] Full network per message causal ordering: If node A sends a message `m_a` to node B, and node C sends a message `m_c` to node D, then it can simulate either `m_a` arriving before `m_c` or `m_c` arriving before `m_a`.
 
 ## Usage
 
@@ -60,4 +60,3 @@ cargo test --package demo --bin demo -- tests::test_faster_than_realtime --exact
 ```bash
 cargo test --package demo --bin demo -- tests::test_message_ordering --exact --show-output
 ```
-
