@@ -1,0 +1,8 @@
+FROM rust:slim-buster
+
+WORKDIR /usr/src/app
+COPY . .
+
+RUN cargo build
+ENV RUST_LOG=debug
+CMD ["./target/release/demo"]

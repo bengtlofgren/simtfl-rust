@@ -114,7 +114,6 @@ impl Network {
 
     /// Starts a specific node
     pub async fn start_node(&self, ident: i32) {
-        println!("Starting node");
         if let Some(node) = self.node(ident) {
             self.log(ident, "start", &format!("{:?}", node));
             // Clone the node before spawning

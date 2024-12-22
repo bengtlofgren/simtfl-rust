@@ -3,7 +3,7 @@ use std::collections::VecDeque;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
-use logging::{Logger, PrintLogger};
+use logging::{Logger, DebugLogger};
 #[allow(unused_imports)]
 use message::{Message, MessageString};
 use network::{Network, Node};
@@ -21,7 +21,7 @@ impl PassiveNode {
         PassiveNode {
             id: 0,
             network: None,
-            logger: Arc::new(PrintLogger {}),
+            logger: Arc::new(DebugLogger {}),
         }
     }
 }
@@ -62,7 +62,7 @@ impl Node for PassiveNode {
 pub struct SequentialNode {
     ident: i32,
     network: Option<Arc<Mutex<Network>>>,
-    mailbox: Arc<Mutex<VecDeque<(i32, Box<dyn Message>)>>>,
+    pub mailbox: Arc<Mutex<VecDeque<(i32, Box<dyn Message>)>>>,
 }
 
 impl SequentialNode {

@@ -1,0 +1,10 @@
+FROM rust:alpine
+
+WORKDIR /usr/src/app
+COPY . .
+
+RUN apk add --no-cache musl-dev
+
+RUN cargo build --release
+ENV RUST_LOG=debug
+CMD ["./target/release/demo"]

@@ -11,24 +11,46 @@ pub trait Logger: Send + Sync {
 
 /// A logger that does nothing
 #[derive(Default)]
-pub struct PrintLogger;
+pub struct DebugLogger;
 
-impl Logger for PrintLogger {
+impl Logger for DebugLogger {
     fn header(&self) {
         // Log the header using log crate
-        info!("\nTime | Node | Event      | Detail");
+        info!(" Node | Event      | Detail");
     }
 
     fn log(&self, ident: i32, event: &str, detail: &str) {
         // Log using log crate
-        let now = chrono::Local::now().format("%H:%M:%S");
-        debug!("{:5} | {:4} | {:10} | {}", now, ident, event, detail);
+        debug!(" {:4} | {:10} | {}", ident, event, detail);
+    }
+}
+
+#[derive(Default)]
+pub struct PrintLogger;
+
+impl Logger for PrintLogger {
+    fn header(&self) {
+        // Log the header using stdout
+        println!(" Node | Event      | Detail");
+    }
+
+    fn log(&self, ident: i32, event: &str, detail: &str) {
+        // Log using stdout
+        println!("{:4} | {:10} | {}", ident, event, detail);
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_debug_logger() {
+        // Create a buffer to capture output
+        let logger = DebugLogger {};
+        logger.header();
+        logger.log(1, "TEST", "test detail");
+    }
 
     #[test]
     fn test_print_logger() {

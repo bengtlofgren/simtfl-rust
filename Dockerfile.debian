@@ -1,0 +1,6 @@
+FROM rust:slim-bullseye
+WORKDIR /usr/src/app
+COPY . .
+RUN cargo build --release
+ENV RUST_LOG=debug
+CMD ["./target/release/demo"] 
