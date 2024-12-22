@@ -60,3 +60,10 @@ cargo test --package demo --bin demo -- tests::test_faster_than_realtime --exact
 ```bash
 cargo test --package demo --bin demo -- tests::test_message_ordering --exact --show-output
 ```
+
+## Todos
+
+- [ ] Ensure cargo doc produces good documentation
+- [ ] Refactor tests into separate test directory and files
+- [ ] Add more tests
+- [ ] Move dockerfiles into directory and edit script. Make script run all tests in addition to main function
