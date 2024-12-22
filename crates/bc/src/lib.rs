@@ -1,7 +1,6 @@
 use std::collections::{HashSet, VecDeque};
-use std::iter::Chain;
-use std::slice::Iter;
 
+#[allow(dead_code)]
 /// Unique identifier for block hashes
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 struct BlockHash(u64);
@@ -14,21 +13,24 @@ impl BlockHash {
     }
 }
 
+#[allow(dead_code)]
 /// Transaction output
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 struct TXO {
-    tx_id: u64,  // Reference to parent transaction
+    tx_id: u64, // Reference to parent transaction
     index: usize,
     value: u64,
 }
 
+#[allow(dead_code)]
 /// Shielded note
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 struct Note {
-    id: u64,    // Unique identifier
+    id: u64, // Unique identifier
     value: u64,
 }
 
+#[allow(dead_code)]
 impl Note {
     fn new(value: u64) -> Self {
         use std::sync::atomic::{AtomicU64, Ordering};
@@ -40,6 +42,7 @@ impl Note {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 struct BCTransaction {
     transparent_inputs: Vec<TXO>,
@@ -52,6 +55,7 @@ struct BCTransaction {
     id: u64,
 }
 
+#[allow(dead_code)]
 impl BCTransaction {
     fn new(
         transparent_inputs: Vec<TXO>,
@@ -65,11 +69,15 @@ impl BCTransaction {
         use std::sync::atomic::{AtomicU64, Ordering};
         static COUNTER: AtomicU64 = AtomicU64::new(0);
         let id = COUNTER.fetch_add(1, Ordering::Relaxed);
-        
+
         let transparent_outputs = transparent_output_values
             .iter()
             .enumerate()
-            .map(|(i, v)| TXO { tx_id: id, index: i, value: *v })
+            .map(|(i, v)| TXO {
+                tx_id: id,
+                index: i,
+                value: *v,
+            })
             .collect();
 
         let shielded_outputs = shielded_output_values
@@ -78,18 +86,17 @@ impl BCTransaction {
             .collect();
 
         // Validate transaction
-        assert!(issuance >= 0);
         let is_coinbase = transparent_inputs.is_empty() && shielded_inputs.is_empty();
         assert!(fee >= 0 || is_coinbase);
         assert!(issuance == 0 || is_coinbase);
 
-        let total_in: u64 = transparent_inputs.iter().map(|txo| txo.value).sum::<u64>() +
-                        shielded_inputs.iter().map(|note| note.value).sum::<u64>() +
-                        issuance;
-        
-        let total_out: u64 = transparent_output_values.iter().sum::<u64>() +
-                            shielded_output_values.iter().sum::<u64>() +
-                            if fee >= 0 { fee as u64 } else { 0 };
+        let total_in: u64 = transparent_inputs.iter().map(|txo| txo.value).sum::<u64>()
+            + shielded_inputs.iter().map(|note| note.value).sum::<u64>()
+            + issuance;
+
+        let total_out: u64 = transparent_output_values.iter().sum::<u64>()
+            + shielded_output_values.iter().sum::<u64>()
+            + if fee >= 0 { fee as u64 } else { 0 };
 
         assert_eq!(total_in, total_out);
 
@@ -110,12 +117,14 @@ impl BCTransaction {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq)]
 enum Spentness {
     Unspent,
     Spent,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Clone)]
 struct BCContext {
     transactions: VecDeque<BCTransaction>,
@@ -124,6 +133,7 @@ struct BCContext {
     total_issuance: u64,
 }
 
+#[allow(dead_code)]
 impl BCContext {
     fn new() -> Self {
         BCContext {
@@ -136,7 +146,8 @@ impl BCContext {
 
     fn can_spend(&self, to_spend: &[Note]) -> bool {
         to_spend.iter().all(|note| {
-            self.notes.iter()
+            self.notes
+                .iter()
                 .find(|(n, _)| n == note)
                 .map_or(false, |(_, status)| *status == Spentness::Unspent)
         })
@@ -165,7 +176,7 @@ impl BCContext {
                 self.notes[pos].1 = Spentness::Spent;
             }
         }
-        
+
         for output in &tx.shielded_outputs {
             self.notes.push((output.clone(), Spentness::Unspent));
         }
@@ -176,6 +187,7 @@ impl BCContext {
     }
 }
 
+#[allow(dead_code)]
 #[derive(Debug)]
 struct BCBlock {
     parent: Option<Box<BCBlock>>,
@@ -184,6 +196,7 @@ struct BCBlock {
     hash: BlockHash,
 }
 
+#[allow(dead_code)]
 impl BCBlock {
     fn new(
         parent: Option<BCBlock>,
@@ -192,7 +205,9 @@ impl BCBlock {
         allow_invalid: bool,
     ) -> Self {
         let parent = parent.map(Box::new);
-        let score = parent.as_ref().map_or(added_score, |p| p.score + added_score);
+        let score = parent
+            .as_ref()
+            .map_or(added_score, |p| p.score + added_score);
         let hash = BlockHash::new();
 
         let block = BCBlock {
@@ -223,7 +238,7 @@ mod tests {
     #[test]
     fn test_basic() {
         let mut ctx = BCContext::new();
-        
+
         // Genesis block
         let coinbase_tx0 = BCTransaction::new(vec![], vec![10], vec![], vec![], 0, None, 10);
         assert!(ctx.add_if_valid(coinbase_tx0.clone()));

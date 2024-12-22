@@ -4,3 +4,9 @@ version.workspace = true
 edition.workspace = true
 
 [dependencies]
+network.workspace = true
+utils.workspace = true 
+message.workspace = true
+logging.workspace = true
+async-trait.workspace = true
+tokio = { version = "1.42.0", features = ["full"] }

@@ -2,18 +2,21 @@ use std::collections::HashSet;
 
 /// Calculate the notarization threshold used in most permissioned BFT protocols:
 /// ceiling(n * 2/3)
+#[allow(dead_code)]
 fn two_thirds_threshold(n: i32) -> i32 {
     (n * 2 + 2) / 3
 }
 
+#[allow(dead_code)]
 /// Base trait for BFT blocks and proposals
-trait PermissionedBFTBase : std::fmt::Debug {
+trait PermissionedBFTBase: std::fmt::Debug {
     fn n(&self) -> i32;
     fn t(&self) -> i32;
     fn parent(&self) -> Option<&dyn PermissionedBFTBase>;
     fn last_final(&self) -> &dyn PermissionedBFTBase;
 }
 
+#[allow(dead_code)]
 /// Genesis block implementation
 #[derive(Debug)]
 struct Genesis {
@@ -21,6 +24,7 @@ struct Genesis {
     t: i32,
 }
 
+#[allow(dead_code)]
 impl Genesis {
     fn new(n: i32, t: i32) -> Self {
         Genesis { n, t }
@@ -45,6 +49,7 @@ impl PermissionedBFTBase for Genesis {
     }
 }
 
+#[allow(dead_code)]
 /// A proposal for a BFT protocol
 #[derive(Debug, Clone)]
 struct PermissionedBFTProposal<'a> {
@@ -54,6 +59,7 @@ struct PermissionedBFTProposal<'a> {
     signers: HashSet<i32>,
 }
 
+#[allow(dead_code)]
 impl<'a> PermissionedBFTProposal<'a> {
     fn new(parent: &'a dyn PermissionedBFTBase) -> Self {
         PermissionedBFTProposal {
@@ -69,7 +75,7 @@ impl<'a> PermissionedBFTProposal<'a> {
         if self.signers.len() > self.n as usize {
             return Err("Too many signatures");
         }
-       Ok(())
+        Ok(())
     }
 
     fn is_valid(&self) -> bool {
@@ -115,6 +121,7 @@ impl<'a> PermissionedBFTBase for PermissionedBFTProposal<'a> {
     }
 }
 
+#[allow(dead_code)]
 /// A block for a BFT protocol
 #[derive(Debug, Clone)]
 struct PermissionedBFTBlock<'a> {
@@ -123,6 +130,7 @@ struct PermissionedBFTBlock<'a> {
     proposal: PermissionedBFTProposal<'a>,
 }
 
+#[allow(dead_code)]
 impl<'a> PermissionedBFTBlock<'a> {
     fn new(proposal: PermissionedBFTProposal<'a>) -> Result<Self, &'static str> {
         proposal.assert_notarized()?;
@@ -194,10 +202,10 @@ mod tests {
         let genesis = Genesis::new(5, 2);
         let mut proposal = PermissionedBFTProposal::new(&genesis);
         assert!(PermissionedBFTBlock::new(proposal.clone()).is_err());
-        
+
         proposal.add_signature(0).unwrap();
         assert!(PermissionedBFTBlock::new(proposal.clone()).is_err());
-        
+
         proposal.add_signature(1).unwrap();
         assert!(PermissionedBFTBlock::new(proposal).is_ok());
     }

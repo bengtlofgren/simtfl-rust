@@ -3,6 +3,7 @@ members = [
     "bin/demo",
     "crates/logging", "crates/network", "crates/message", "crates/utils"
 , "crates/bft", "crates/bc", "crates/node", ]
+resolver = "2"
 
 [workspace.package]
 version = "0.1.0"
@@ -16,5 +17,7 @@ utils = { path = "crates/utils" }
 bft = { path = "crates/bft" }
 bc = { path = "crates/bc" }
 node = { path = "crates/node" }
+async-trait = "0.1.83"
+env_logger = "0.11.6"
 
 

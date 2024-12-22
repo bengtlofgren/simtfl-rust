@@ -1,5 +1,5 @@
 use std::hash::{Hash, Hasher};
-use tokio::sync::oneshot;  // For Event-like functionality
+use tokio::sync::oneshot; // For Event-like functionality
 
 /// Type alias for process effects, similar to Python's Generator[Event, None, None]
 pub type ProcessEffect = oneshot::Receiver<()>;
@@ -7,7 +7,7 @@ pub type ProcessEffect = oneshot::Receiver<()>;
 /// Does nothing, equivalent to Python's skip()
 pub async fn skip() -> ProcessEffect {
     let (tx, rx) = oneshot::channel();
-    tx.send(()).unwrap();  // Send immediately
+    tx.send(()).unwrap(); // Send immediately
     rx
 }
 
@@ -51,9 +51,9 @@ mod tests {
     fn test_unique() {
         let u1 = Unique::new();
         let u2 = Unique::new();
-        
+
         assert_ne!(u1, u2);
-        
+
         let mut set = HashSet::new();
         set.insert(u1);
         set.insert(u2);
